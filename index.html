@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DevX Games - Spin to Win</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(to bottom, #1e1e2f, #3b3b58);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      font-size: 2.5rem;
+      color: #ffd700;
+    }
+
+    .wheel-container {
+      position: relative;
+    }
+
+    #wheel {
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      border: 10px solid #fff;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 0 20px #ffd700;
+      transition: transform 5s cubic-bezier(0.17, 0.67, 0.83, 0.67);
+    }
+
+    .segment {
+      position: absolute;
+      width: 50%;
+      height: 50%;
+      background: #ff4081;
+      transform-origin: 100% 100%;
+      clip-path: polygon(0 0, 100% 100%, 0 100%);
+    }
+
+    #spinBtn {
+      margin-top: 30px;
+      padding: 12px 24px;
+      font-size: 1.2rem;
+      background-color: #ffd700;
+      border: none;
+      border-radius: 10px;
+      color: #000;
+      cursor: pointer;
+      box-shadow: 0 0 10px #000;
+    }
+
+    .pointer {
+      width: 0;
+      height: 0;
+      border-left: 20px solid transparent;
+      border-right: 20px solid transparent;
+      border-bottom: 30px solid red;
+      position: absolute;
+      top: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .popup {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      color: #fff;
+      font-size: 1.5rem;
+      text-align: center;
+      display: none;
+    }
+
+    .popup-content {
+      background: #2c2c3e;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 0 20px #ffd700;
+    }
+  </style>
+</head>
+<body>
+  <h1>DevX Games</h1>
+  <div class="wheel-container">
+    <div class="pointer"></div>
+    <div id="wheel"></div>
+  </div>
+  <button id="spinBtn">SPIN</button>
+
+  <div class="popup" id="popup">
+    <div class="popup-content" id="popupContent">
+      <!-- Reward text will go here -->
+    </div>
+  </div>
+
+  <script>
+    const rewards = [
+      "Better Luck Next Time",
+      "10% Off Coupon",
+      "Free Shipping",
+      "Rs. 100 Paytm",
+      "Buy 1 Get 1 Free",
+      "iPhone 15 Pro",
+      "Rs. 500 Cashback",
+      "Mystery Gift"
+    ];
+
+    const wheel = document.getElementById("wheel");
+    const spinBtn = document.getElementById("spinBtn");
+    const popup = document.getElementById("popup");
+    const popupContent = document.getElementById("popupContent");
+
+    const segmentCount = rewards.length;
+    const anglePerSegment = 360 / segmentCount;
+
+    function buildWheel() {
+      for (let i = 0; i < segmentCount; i++) {
+        const segment = document.createElement("div");
+        segment.className = "segment";
+        segment.style.transform = `rotate(${i * anglePerSegment}deg)`;
+        segment.style.backgroundColor = i % 2 === 0 ? "#ff4081" : "#4caf50";
+        segment.innerHTML = `<div style="transform: rotate(${anglePerSegment / 2}deg); padding: 20px; color: white;">${rewards[i]}</div>`;
+        wheel.appendChild(segment);
+      }
+    }
+
+    buildWheel();
+
+    let isSpinning = false;
+
+    spinBtn.addEventListener("click", () => {
+      if (isSpinning || localStorage.getItem("hasSpun")) return alert("You have already played!");
+
+      isSpinning = true;
+      const randomIndex = Math.floor(Math.random() * segmentCount);
+      const degrees = 360 * 5 + (360 - randomIndex * anglePerSegment - anglePerSegment / 2);
+
+      wheel.style.transform = `rotate(${degrees}deg)`;
+
+      setTimeout(() => {
+        popup.style.display = "flex";
+        popupContent.innerText = `🎉 You won: ${rewards[randomIndex]} 🎉`;
+        localStorage.setItem("hasSpun", true);
+        isSpinning = false;
+      }, 5000);
+    });
+
+    popup.addEventListener("click", () => {
+      popup.style.display = "none";
+    });
+  </script>
+</body>
+</html>
